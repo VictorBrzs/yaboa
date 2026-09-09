@@ -1,0 +1,10 @@
+{
+  "name": "yaboa-root",
+  "private": true,
+  "scripts": {
+    "install:app": "npm install --prefix \"Yaboa mobile app\"",
+    "build:app": "npm run build --prefix \"Yaboa mobile app\"",
+    "dev:app": "npm run dev --prefix \"Yaboa mobile app\"",
+    "build": "npm run build:app"
+  }
+}
