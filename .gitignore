@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.capacitor/
+android/
+.DS_Store
+npm-debug.log*
+.vite/
