@@ -6,6 +6,7 @@
 **/*.log
 **/verification-*.png
 **/validacao-*.png
+**/producao-*.png
 yaboa-buch-main/
 Yaboa mobile app/build-output.txt
 Yaboa mobile app/supabase/schema.sql

@@ -7,7 +7,8 @@
     "build": "vite build",
     "dev": "vite --host 0.0.0.0",
     "start": "vite --host 0.0.0.0",
-    "redefinir:usuarios": "node --env-file-if-exists=.env scripts/redefinir-usuarios.mjs"
+    "redefinir:usuarios": "node --env-file-if-exists=.env scripts/redefinir-usuarios.mjs",
+    "criar:convidado": "node --env-file-if-exists=.env scripts/criar-convidado.mjs"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
