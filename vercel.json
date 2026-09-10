@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "installCommand": "npm ci --prefix \"Yaboa mobile app\"",
+  "buildCommand": "npm run build --prefix \"Yaboa mobile app\"",
+  "outputDirectory": "Yaboa mobile app/dist",
+  "framework": "vite"
+}
