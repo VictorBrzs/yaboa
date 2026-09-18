@@ -117,7 +117,7 @@ export function PartyCard({ party, onClick }: { party: Party; onClick: () => voi
       <div className="party-card-body">
         <div className="card-row">
           <span className="vibe-pill">{party.vibe}</span>
-          <span className="muted">{party.distanceKm !== null ? `${party.distanceKm.toFixed(1)} km` : `${party.going} vao`}</span>
+          <span className="muted">{party.distanceKm !== null ? `${party.distanceKm.toFixed(1)} km` : String(party.going)}</span>
         </div>
         <h3>{party.title}</h3>
         <p>
@@ -127,7 +127,7 @@ export function PartyCard({ party, onClick }: { party: Party; onClick: () => voi
           <CalendarDays size={14} /> {formatDate(party.date)} as {party.time}
         </p>
         <p>
-          <UsersRound size={14} /> {party.visibility === "friends" ? "Amigos" : "Publico"} - {party.going} vao
+          <UsersRound size={14} /> {party.visibility === "friends" ? "Amigos" : "Publico"} - {party.going}
         </p>
       </div>
     </button>

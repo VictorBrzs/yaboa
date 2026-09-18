@@ -1546,6 +1546,65 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
+.image-picker {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.image-picker > span {
+  color: #c2410c;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.image-picker img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid #fdba74;
+  background: #fff7ed;
+}
+
+.image-picker.compact img {
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  aspect-ratio: auto;
+}
+
+.image-picker-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.image-picker-actions label {
+  min-height: 46px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fff;
+  background: #9a3412;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.image-picker-actions label:first-child {
+  background: #f97316;
+}
+
+.image-picker-actions input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .address-helper {
   display: grid;
   gap: 10px;

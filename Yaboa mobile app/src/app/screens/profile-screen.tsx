@@ -1,8 +1,8 @@
-import { FormEvent, useEffect, useState } from "react";
-import { AtSign, Camera, Edit3, RefreshCw, Save, UserRound, X } from "lucide-react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { AtSign, Camera, Edit3, ImagePlus, RefreshCw, Save, UserRound, X } from "lucide-react";
 import yaboaLogo from "../../assets/brand/yaboa-cropped.png";
 import { Field } from "../components/common";
-import { initials } from "../helpers";
+import { imageFileToDataUrl, initials } from "../helpers";
 import type { CurrentUser } from "../types";
 
 type ProfileScreenProps = {
@@ -20,10 +20,12 @@ export function ProfileScreen({ user, partiesCount, followersCount, followingCou
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<CurrentUser | null>(user);
   const [message, setMessage] = useState("");
+  const [imageMessage, setImageMessage] = useState("");
 
   useEffect(() => {
     setForm(user);
     setMessage("");
+    setImageMessage("");
   }, [user]);
 
   async function submit(event: FormEvent) {
@@ -35,6 +37,21 @@ export function ProfileScreen({ user, partiesCount, followersCount, followingCou
       setEditing(false);
       setMessage("Perfil atualizado.");
     }
+  }
+
+  async function chooseAvatar(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file || !current) return;
+
+    try {
+      const avatarUrl = await imageFileToDataUrl(file, 900, 0.84);
+      setForm({ ...current, avatarUrl });
+      setImageMessage("Foto anexada.");
+    } catch (error: any) {
+      setImageMessage(error?.message || "Nao foi possivel anexar a foto.");
+    }
+
+    event.target.value = "";
   }
 
   const current = form || user;
@@ -96,7 +113,21 @@ export function ProfileScreen({ user, partiesCount, followersCount, followingCou
               onChange={(value) => setForm({ ...current, username: value.toLowerCase().replace(/^@/, "").replace(/[^a-z0-9_]/g, "") })}
               required
             />
-          <Field label="Foto de perfil URL" value={current.avatarUrl} onChange={(value) => setForm({ ...current, avatarUrl: value })} placeholder="https://..." />
+          <div className="image-picker compact">
+            <span>Foto de perfil</span>
+            {current.avatarUrl && <img src={current.avatarUrl} alt={current.name} />}
+            <div className="image-picker-actions">
+              <label>
+                <ImagePlus size={16} /> Galeria
+                <input type="file" accept="image/*" onChange={chooseAvatar} />
+              </label>
+              <label>
+                <Camera size={16} /> Camera
+                <input type="file" accept="image/*" capture="user" onChange={chooseAvatar} />
+              </label>
+            </div>
+            {imageMessage && <p className={`form-message ${imageMessage.startsWith("Foto anexada") ? "success" : ""}`}>{imageMessage}</p>}
+          </div>
           <label className="field">
             <span>Bio</span>
             <textarea value={current.bio} onChange={(event) => setForm({ ...current, bio: event.target.value })} maxLength={160} />

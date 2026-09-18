@@ -46,6 +46,40 @@ export function distanceKm(fromLat: number, fromLng: number, toLat: number, toLn
   return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+export function imageFileToDataUrl(file: File, maxSize = 1200, quality = 0.82): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onerror = () => reject(new Error("Nao foi possivel carregar a imagem."));
+    reader.onload = () => {
+      const image = new Image();
+
+      image.onerror = () => reject(new Error("Arquivo de imagem invalido."));
+      image.onload = () => {
+        const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+        const width = Math.max(1, Math.round(image.width * scale));
+        const height = Math.max(1, Math.round(image.height * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+        if (!context) {
+          reject(new Error("Nao foi possivel preparar a imagem."));
+          return;
+        }
+
+        context.drawImage(image, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+
+      image.src = String(reader.result || "");
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
 function toRadians(value: number) {
   return (value * Math.PI) / 180;
 }

@@ -1,8 +1,9 @@
-import { FormEvent, useEffect, useState } from "react";
-import { LocateFixed, MapPin, Plus, Search } from "lucide-react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { Camera, ImagePlus, LocateFixed, MapPin, Plus, Search } from "lucide-react";
 import { createBlankParty } from "../constants";
 import { Field } from "../components/common";
 import { buildAddress, formatCep, geocodeAddress, lookupCep } from "../geocoding";
+import { imageFileToDataUrl } from "../helpers";
 import type { Party, UserLocation, Visibility } from "../types";
 
 type CreatePartyScreenProps = {
@@ -24,6 +25,7 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
   const [complement, setComplement] = useState("");
   const [cepStatus, setCepStatus] = useState("");
   const [pinStatus, setPinStatus] = useState("");
+  const [imageStatus, setImageStatus] = useState("");
   const [checkingCep, setCheckingCep] = useState(false);
   const [checkingPin, setCheckingPin] = useState(false);
 
@@ -38,6 +40,7 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
     setComplement("");
     setCepStatus("");
     setPinStatus("");
+    setImageStatus("");
   }, [draft, userLocation.lat, userLocation.lng]);
 
   async function submit(event: FormEvent) {
@@ -49,6 +52,21 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
     };
 
     onSave(preparedParty);
+  }
+
+  async function chooseImage(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const imageUrl = await imageFileToDataUrl(file);
+      setForm((current) => ({ ...current, imageUrl }));
+      setImageStatus("Foto anexada.");
+    } catch (error: any) {
+      setImageStatus(error?.message || "Nao foi possivel anexar a foto.");
+    }
+
+    event.target.value = "";
   }
 
   function updateAddress(next = { street, number, complement, district, city, state: stateUf }) {
@@ -87,7 +105,7 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
         lng: result.lng,
         address: result.displayName || current.address,
       }));
-      setPinStatus("Pin localizado. Ajuste latitude/longitude se precisar aproximar melhor.");
+      setPinStatus("Pin localizado e pronto para publicar.");
     } catch (error: any) {
       setPinStatus(error?.message || "Nao foi possivel localizar este endereco.");
     } finally {
@@ -102,7 +120,7 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
       lng: userLocation.lng,
       address: current.address.trim() || userLocation.label || "Perto de voce",
     }));
-    setPinStatus("Pin marcado na sua localizacao atual. Ajuste se a festa for em outro ponto.");
+    setPinStatus("Pin marcado na sua localizacao atual.");
   }
 
   return (
@@ -154,10 +172,6 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
               <strong>Pin confirmado</strong>
               <span>{form.lat.toFixed(6)}, {form.lng.toFixed(6)}</span>
             </div>
-            <div className="two-grid">
-              <Field label="Latitude" type="number" value={String(form.lat)} onChange={(value) => setForm({ ...form, lat: Number(value) })} />
-              <Field label="Longitude" type="number" value={String(form.lng)} onChange={(value) => setForm({ ...form, lng: Number(value) })} />
-            </div>
           </div>
         </div>
         <div className="two-grid">
@@ -183,7 +197,21 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
             <option value="friends">Apenas amigos</option>
           </select>
         </label>
-        <Field label="Imagem URL" value={form.imageUrl} onChange={(value) => setForm({ ...form, imageUrl: value })} />
+        <div className="image-picker">
+          <span>Foto da festa</span>
+          {form.imageUrl && <img src={form.imageUrl} alt="" />}
+          <div className="image-picker-actions">
+            <label>
+              <ImagePlus size={16} /> Galeria
+              <input type="file" accept="image/*" onChange={chooseImage} />
+            </label>
+            <label>
+              <Camera size={16} /> Camera
+              <input type="file" accept="image/*" capture="environment" onChange={chooseImage} />
+            </label>
+          </div>
+          {imageStatus && <p className={`form-message ${imageStatus.startsWith("Foto anexada") ? "success" : ""}`}>{imageStatus}</p>}
+        </div>
         <label className="field">
           <span>Descricao</span>
           <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
