@@ -91,7 +91,7 @@ export function AuthScreen({ appStatus, busyMessage, errorMessage, onAuthenticat
       await authenticate(contaConvidado.email, contaConvidado.senha);
     } catch (error: any) {
       if (error?.message?.includes("Invalid login")) {
-        setMessage("A conta de convidado ainda não foi criada no Supabase. Execute o comando criar:convidado uma vez.");
+        setMessage("A conta de convidado ainda não foi criada no Supabase. Crie esse usuário no painel antes de publicar.");
       } else {
         setMessage(readableAuthError(error?.message));
       }

@@ -343,7 +343,22 @@ export default function App() {
     setErrorMessage("");
 
     try {
-      const location = await geocodeAddress(party.venueName, party.address);
+      let location = {
+        lat: Number(party.lat),
+        lng: Number(party.lng),
+        displayName: party.address,
+      };
+
+      if (!Number.isFinite(location.lat) || !Number.isFinite(location.lng)) {
+        location = await geocodeAddress(party.venueName, party.address);
+      } else {
+        try {
+          location = await geocodeAddress(party.venueName, party.address);
+        } catch {
+          setErrorMessage("Endereco nao validado automaticamente. Salvando com o pin confirmado.");
+        }
+      }
+
       const imageUrl = party.imageUrl || fallbackImage;
       const venuePayload = {
         nome: party.venueName,

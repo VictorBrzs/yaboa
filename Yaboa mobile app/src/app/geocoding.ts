@@ -17,6 +17,21 @@ type NominatimResult = {
   display_name?: string;
 };
 
+type PhotonResult = {
+  features?: Array<{
+    geometry?: { coordinates?: [number, number] };
+    properties?: {
+      name?: string;
+      street?: string;
+      housenumber?: string;
+      district?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+    };
+  }>;
+};
+
 type ViaCepResult = {
   erro?: boolean;
   logradouro?: string;
@@ -68,42 +83,84 @@ export async function geocodeAddress(venueName: string, address: string): Promis
   if (!queries.length) throw new Error("Informe um endereco valido para colocar a festa no mapa.");
 
   for (const query of queries) {
-    const url = new URL("https://nominatim.openstreetmap.org/search");
-    url.searchParams.set("format", "jsonv2");
-    url.searchParams.set("limit", "3");
-    url.searchParams.set("addressdetails", "1");
-    url.searchParams.set("countrycodes", "br");
-    url.searchParams.set("accept-language", "pt-BR");
+    const result = await geocodeWithNominatim(query, normalizedAddress);
+    if (result) return result;
+  }
 
-    if (typeof query === "string") {
-      url.searchParams.set("q", query);
-    } else {
-      Object.entries(query).forEach(([key, value]) => {
-        if (value) url.searchParams.set(key, value);
-      });
-    }
-
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error("Nao foi possivel validar o endereco agora. Tente novamente.");
-
-    const results = (await response.json()) as NominatimResult[];
-    const firstResult = results[0];
-    if (!firstResult) continue;
-
-    const lat = Number(firstResult.lat);
-    const lng = Number(firstResult.lon);
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-      throw new Error("O endereco encontrado nao retornou coordenadas validas.");
-    }
-
-    return {
-      lat,
-      lng,
-      displayName: firstResult.display_name || normalizedAddress,
-    };
+  for (const query of queries.filter((query): query is string => typeof query === "string")) {
+    const result = await geocodeWithPhoton(query);
+    if (result) return result;
   }
 
   throw new Error("Endereco nao encontrado. Confira rua, numero, bairro, cidade e UF. Se preferir, busque pelo CEP e complete o numero.");
+}
+
+async function geocodeWithNominatim(query: string | StructuredAddress, fallbackName: string): Promise<GeocodedAddress | null> {
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  url.searchParams.set("format", "jsonv2");
+  url.searchParams.set("limit", "3");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("countrycodes", "br");
+  url.searchParams.set("accept-language", "pt-BR");
+
+  if (typeof query === "string") {
+    url.searchParams.set("q", query);
+  } else {
+    Object.entries(query).forEach(([key, value]) => {
+      if (value) url.searchParams.set(key, value);
+    });
+  }
+
+  const response = await fetch(url.toString());
+  if (!response.ok) return null;
+
+  const results = (await response.json()) as NominatimResult[];
+  const firstResult = results[0];
+  if (!firstResult) return null;
+
+  const lat = Number(firstResult.lat);
+  const lng = Number(firstResult.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+  return {
+    lat,
+    lng,
+    displayName: firstResult.display_name || fallbackName,
+  };
+}
+
+async function geocodeWithPhoton(query: string): Promise<GeocodedAddress | null> {
+  const url = new URL("https://photon.komoot.io/api/");
+  url.searchParams.set("q", query);
+  url.searchParams.set("limit", "1");
+  url.searchParams.set("lang", "pt");
+
+  const response = await fetch(url.toString());
+  if (!response.ok) return null;
+
+  const result = (await response.json()) as PhotonResult;
+  const feature = result.features?.[0];
+  const coordinates = feature?.geometry?.coordinates;
+  if (!coordinates) return null;
+
+  const [lng, lat] = coordinates;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+  return {
+    lat,
+    lng,
+    displayName: [
+      feature.properties?.name,
+      feature.properties?.street,
+      feature.properties?.housenumber,
+      feature.properties?.district,
+      feature.properties?.city,
+      feature.properties?.state,
+      feature.properties?.country,
+    ]
+      .filter(Boolean)
+      .join(", "),
+  };
 }
 
 type StructuredAddress = {

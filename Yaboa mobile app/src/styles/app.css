@@ -1520,6 +1520,32 @@ button:disabled {
   margin: 0 0 14px;
 }
 
+.pin-confirmation {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #fdba74;
+  border-radius: 12px;
+  background: #fff7ed;
+}
+
+.pin-confirmation strong,
+.pin-confirmation span {
+  display: block;
+}
+
+.pin-confirmation strong {
+  color: #431407;
+  font-weight: 950;
+}
+
+.pin-confirmation span {
+  color: #7c2d12;
+  font-size: 0.84rem;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
 .address-helper {
   display: grid;
   gap: 10px;
@@ -1933,6 +1959,105 @@ button:disabled {
     height: 100vh;
     border-radius: 0;
     border: 0;
+  }
+}
+
+@media (min-width: 900px) {
+  .app-shell {
+    align-items: stretch;
+    justify-items: center;
+    padding: 24px;
+  }
+
+  .phone-frame {
+    width: min(1180px, 100%);
+    height: calc(100vh - 48px);
+    border-radius: 20px;
+  }
+
+  .screen {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 34px;
+  }
+
+  .auth-frame {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1fr);
+    align-items: center;
+    gap: 18px;
+    padding: 32px;
+  }
+
+  .auth-hero {
+    min-height: auto;
+    padding: 28px;
+  }
+
+  .auth-panel {
+    width: min(460px, 100%);
+    margin: 0 auto;
+  }
+
+  .map-screen-full {
+    height: 100%;
+  }
+
+  .map-screen-full .map-card {
+    left: 28px;
+    right: auto;
+    bottom: 28px;
+    width: min(360px, calc(100% - 132px));
+  }
+
+  .map-create-button {
+    right: 28px;
+    bottom: 28px;
+  }
+
+  .bottom-nav {
+    left: 50%;
+    right: auto;
+    bottom: 18px;
+    width: min(560px, calc(100% - 40px));
+    transform: translateX(-50%);
+  }
+
+  .toast-error {
+    left: 50%;
+    right: auto;
+    bottom: 96px;
+    width: min(620px, calc(100% - 48px));
+    transform: translateX(-50%);
+  }
+
+  .party-list,
+  .feed-list,
+  .owner-party-list,
+  .follow-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .party-card,
+  .owner-party-main {
+    grid-template-columns: 132px 1fr;
+  }
+
+  .party-card img,
+  .owner-party-main img {
+    width: 132px;
+  }
+
+  .party-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 16px;
+  }
+
+  .party-form > .address-helper,
+  .party-form > label.field:has(textarea),
+  .party-form > .form-actions {
+    grid-column: 1 / -1;
   }
 }
 

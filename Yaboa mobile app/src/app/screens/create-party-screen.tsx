@@ -1,8 +1,8 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { MapPin, Plus, Search } from "lucide-react";
 import { createBlankParty } from "../constants";
 import { Field } from "../components/common";
-import { buildAddress, formatCep, lookupCep } from "../geocoding";
+import { buildAddress, formatCep, geocodeAddress, lookupCep } from "../geocoding";
 import type { Party, UserLocation, Visibility } from "../types";
 
 type CreatePartyScreenProps = {
@@ -23,7 +23,9 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
   const [stateUf, setStateUf] = useState("");
   const [complement, setComplement] = useState("");
   const [cepStatus, setCepStatus] = useState("");
+  const [pinStatus, setPinStatus] = useState("");
   const [checkingCep, setCheckingCep] = useState(false);
+  const [checkingPin, setCheckingPin] = useState(false);
 
   useEffect(() => {
     setForm(draft || createBlankParty(userLocation));
@@ -35,6 +37,7 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
     setStateUf("");
     setComplement("");
     setCepStatus("");
+    setPinStatus("");
   }, [draft, userLocation.lat, userLocation.lng]);
 
   async function submit(event: FormEvent) {
@@ -68,6 +71,26 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
       setCepStatus(error?.message || "CEP nao encontrado.");
     } finally {
       setCheckingCep(false);
+    }
+  }
+
+  async function confirmPin() {
+    setCheckingPin(true);
+    setPinStatus("");
+
+    try {
+      const result = await geocodeAddress(form.venueName, form.address);
+      setForm((current) => ({
+        ...current,
+        lat: result.lat,
+        lng: result.lng,
+        address: result.displayName || current.address,
+      }));
+      setPinStatus("Pin localizado. Ajuste latitude/longitude se precisar aproximar melhor.");
+    } catch (error: any) {
+      setPinStatus(error?.message || "Nao foi possivel localizar este endereco.");
+    } finally {
+      setCheckingPin(false);
     }
   }
 
@@ -109,6 +132,20 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
             placeholder="Rua, numero, bairro, cidade - UF"
             required
           />
+          <button type="button" className="location-button ghost-button" onClick={confirmPin} disabled={checkingPin || busy || !form.address.trim()}>
+            <MapPin size={16} /> {checkingPin ? "Validando..." : "Confirmar pin"}
+          </button>
+          {pinStatus && <p className={`form-message ${pinStatus.startsWith("Pin localizado") ? "success" : ""}`}>{pinStatus}</p>}
+          <div className="pin-confirmation">
+            <div>
+              <strong>Pin confirmado</strong>
+              <span>{form.lat.toFixed(6)}, {form.lng.toFixed(6)}</span>
+            </div>
+            <div className="two-grid">
+              <Field label="Latitude" type="number" value={String(form.lat)} onChange={(value) => setForm({ ...form, lat: Number(value) })} />
+              <Field label="Longitude" type="number" value={String(form.lng)} onChange={(value) => setForm({ ...form, lng: Number(value) })} />
+            </div>
+          </div>
         </div>
         <div className="two-grid">
           <Field label="Data" type="date" value={form.date} onChange={(value) => setForm({ ...form, date: value })} required />
