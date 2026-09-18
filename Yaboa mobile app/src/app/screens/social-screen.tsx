@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { MessageCircle, Search, Send, UserCheck, UserMinus, UserPlus } from "lucide-react";
+import { AtSign, Heart, MessageCircle, Search, Send, UserCheck, UserMinus, UserPlus, X } from "lucide-react";
 import { EmptyState } from "../components/common";
 import { initials, relativeTime } from "../helpers";
 import type { ChatMessage, FollowProfile, Friend } from "../types";
@@ -18,9 +18,11 @@ type SocialScreenProps = {
 export function SocialScreen({ currentUserId, friends, profiles, messages, onFollow, onUnfollow, onSendMessage, readOnly }: SocialScreenProps) {
   const [username, setUsername] = useState("");
   const [selectedFriendId, setSelectedFriendId] = useState(friends[0]?.id || "");
+  const [previewProfileId, setPreviewProfileId] = useState("");
   const [message, setMessage] = useState("");
 
   const selectedFriend = friends.find((friend) => friend.id === selectedFriendId) || friends[0] || null;
+  const previewProfile = profiles.find((profile) => profile.id === previewProfileId) || null;
   useEffect(() => {
     if (!selectedFriendId && friends[0]?.id) setSelectedFriendId(friends[0].id);
     if (selectedFriendId && !friends.some((friend) => friend.id === selectedFriendId)) setSelectedFriendId(friends[0]?.id || "");
@@ -74,11 +76,13 @@ export function SocialScreen({ currentUserId, friends, profiles, messages, onFol
       <div className="follow-list">
         {visibleProfiles.map((profile) => (
           <article className="follow-card" key={profile.id}>
-            {profile.avatarUrl ? <img src={profile.avatarUrl} alt={profile.name} /> : <span>{profile.avatar}</span>}
-            <div>
-              <strong>{profile.name}</strong>
-              <small>@{profile.username}</small>
-            </div>
+            <button className="follow-profile-button" type="button" onClick={() => setPreviewProfileId(profile.id)}>
+              {profile.avatarUrl ? <img src={profile.avatarUrl} alt={profile.name} /> : <span>{profile.avatar}</span>}
+              <div>
+                <strong>{profile.name}</strong>
+                <small>@{profile.username}</small>
+              </div>
+            </button>
             {!readOnly &&
               (profile.followedByMe ? (
                 <button className="mini-button quiet" onClick={() => onUnfollow(profile.id)} aria-label={`Deixar de seguir ${profile.username}`}>
@@ -93,6 +97,40 @@ export function SocialScreen({ currentUserId, friends, profiles, messages, onFol
           </article>
         ))}
       </div>
+
+      {previewProfile && (
+        <article className="profile-preview">
+          <button className="profile-preview-close" type="button" onClick={() => setPreviewProfileId("")} aria-label="Fechar previa">
+            <X size={18} />
+          </button>
+          <div className="profile-preview-head">
+            {previewProfile.avatarUrl ? <img src={previewProfile.avatarUrl} alt={previewProfile.name} /> : <span>{previewProfile.avatar}</span>}
+            <div>
+              <h2>{previewProfile.name}</h2>
+              <p>
+                <AtSign size={14} /> {previewProfile.username}
+              </p>
+            </div>
+          </div>
+          <p className="profile-preview-bio">{previewProfile.bio || "Sem descricao por enquanto."}</p>
+          <div className="profile-preview-tags">
+            <Heart size={15} />
+            {(previewProfile.favoriteTags?.length ? previewProfile.favoriteTags : ["festas", "novas amizades"]).map((tag) => (
+              <span key={tag}>{tag}</span>
+            ))}
+          </div>
+          {!readOnly &&
+            (previewProfile.followedByMe ? (
+              <button className="ghost-button" onClick={() => onUnfollow(previewProfile.id)}>
+                <UserMinus size={16} /> Deixar de seguir
+              </button>
+            ) : (
+              <button className="primary-button" onClick={() => onFollow(previewProfile.username)}>
+                <UserPlus size={16} /> Seguir @{previewProfile.username}
+              </button>
+            ))}
+        </article>
+      )}
 
       <div className="section-title compact-title">
         <h2>Chats</h2>

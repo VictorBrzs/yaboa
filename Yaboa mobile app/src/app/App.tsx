@@ -168,7 +168,7 @@ export default function App() {
   async function loadSocial(userId: string): Promise<{ friends: Friend[]; profiles: FollowProfile[]; following: number; followers: number }> {
     const [{ data: follows }, { data: profiles }] = await Promise.all([
       supabase.from("seguidores").select("*").order("criado_em", { ascending: false }),
-      supabase.from("usuarios").select("id,nome,nome_usuario,url_avatar"),
+      supabase.from("usuarios").select("id,nome,nome_usuario,url_avatar,biografia,preferencias"),
     ]);
 
     const followingIds = new Set((follows ?? []).filter((follow: any) => follow.seguidor_id === userId).map((follow: any) => follow.seguindo_id));
@@ -178,6 +178,7 @@ export default function App() {
       .filter((profile: any) => profile.id !== userId)
       .map((profile: any) => {
         const name = profile.nome || profile.nome_usuario || "Usuário";
+        const preferences = profile.preferencias && typeof profile.preferencias === "object" ? profile.preferencias : {};
         const followedByMe = followingIds.has(profile.id);
         const followsMe = followerIds.has(profile.id);
 
@@ -187,6 +188,8 @@ export default function App() {
           username: profile.nome_usuario || "",
           avatar: initials(name),
           avatarUrl: profile.url_avatar || "",
+          bio: profile.biografia || "",
+          favoriteTags: Array.isArray(preferences.etiquetas) ? preferences.etiquetas.filter(Boolean) : [],
           followedByMe,
           followsMe,
           isFriend: followedByMe && followsMe,

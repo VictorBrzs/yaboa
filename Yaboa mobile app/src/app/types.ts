@@ -52,6 +52,8 @@ export type Friend = {
   username: string;
   avatar: string;
   avatarUrl?: string;
+  bio?: string;
+  favoriteTags?: string[];
 };
 
 export type FollowProfile = Friend & {

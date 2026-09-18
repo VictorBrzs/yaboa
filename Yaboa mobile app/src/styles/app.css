@@ -819,13 +819,26 @@ button:disabled {
 .follow-card {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 12px;
   padding: 12px;
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 14px 28px rgba(154, 52, 18, 0.12);
+}
+
+.follow-profile-button {
+  min-width: 0;
+  border: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
 }
 
 .follow-card img,
@@ -888,6 +901,100 @@ button:disabled {
   background: #dcfce7;
   border-radius: 999px;
   padding: 2px;
+}
+
+.profile-preview {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+  padding: 18px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 14px 28px rgba(154, 52, 18, 0.12);
+}
+
+.profile-preview-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: #9a3412;
+  background: #fff7ed;
+}
+
+.profile-preview-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding-right: 40px;
+}
+
+.profile-preview-head img,
+.profile-preview-head > span {
+  width: 70px;
+  height: 70px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.profile-preview-head > span {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #f97316;
+  font-size: 1.25rem;
+  font-weight: 950;
+}
+
+.profile-preview h2 {
+  margin: 0 0 4px;
+  color: #431407;
+  font-size: 1.2rem;
+  font-weight: 950;
+}
+
+.profile-preview p {
+  margin: 0;
+}
+
+.profile-preview-head p,
+.profile-preview-bio {
+  color: #7c2d12;
+  font-weight: 820;
+}
+
+.profile-preview-head p {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.profile-preview-bio {
+  line-height: 1.45;
+}
+
+.profile-preview-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: #ea580c;
+}
+
+.profile-preview-tags span {
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #c2410c;
+  background: #ffedd5;
+  font-size: 0.74rem;
+  font-weight: 950;
 }
 
 .chat-friend-strip {
