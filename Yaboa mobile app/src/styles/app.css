@@ -980,6 +980,36 @@ button:disabled {
   line-height: 1.45;
 }
 
+.profile-preview-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.profile-preview-stats div {
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+}
+
+.profile-preview-stats strong,
+.profile-preview-stats span {
+  display: block;
+}
+
+.profile-preview-stats strong {
+  color: #431407;
+  font-size: 1.25rem;
+  font-weight: 950;
+}
+
+.profile-preview-stats span {
+  color: #7c2d12;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
 .profile-preview-tags {
   display: flex;
   flex-wrap: wrap;

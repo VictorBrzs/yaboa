@@ -190,6 +190,8 @@ export default function App() {
           avatarUrl: profile.url_avatar || "",
           bio: profile.biografia || "",
           favoriteTags: Array.isArray(preferences.etiquetas) ? preferences.etiquetas.filter(Boolean) : [],
+          followersCount: (follows ?? []).filter((follow: any) => follow.seguindo_id === profile.id).length,
+          followingCount: (follows ?? []).filter((follow: any) => follow.seguidor_id === profile.id).length,
           followedByMe,
           followsMe,
           isFriend: followedByMe && followsMe,

@@ -6,9 +6,13 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --host 0.0.0.0",
-    "start": "vite --host 0.0.0.0"
+    "start": "vite --host 0.0.0.0",
+    "android:sync": "capacitor sync android",
+    "android:apk": "npm run build && capacitor sync android && cd android && gradlew assembleDebug"
   },
   "dependencies": {
+    "@capacitor/android": "^6.2.2",
+    "@capacitor/core": "^6.2.2",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@mui/icons-material": "7.3.5",
@@ -71,10 +75,12 @@
     "vaul": "1.1.2"
   },
   "devDependencies": {
+    "@capacitor/cli": "^6.2.2",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/vite": "4.1.12",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
+    "typescript": "^7.0.2",
     "vite": "^6.4.2"
   },
   "peerDependencies": {

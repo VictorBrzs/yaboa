@@ -113,6 +113,16 @@ export function SocialScreen({ currentUserId, friends, profiles, messages, onFol
             </div>
           </div>
           <p className="profile-preview-bio">{previewProfile.bio || "Sem descricao por enquanto."}</p>
+          <div className="profile-preview-stats">
+            <div>
+              <strong>{previewProfile.followersCount ?? 0}</strong>
+              <span>seguem</span>
+            </div>
+            <div>
+              <strong>{previewProfile.followingCount ?? 0}</strong>
+              <span>seguindo</span>
+            </div>
+          </div>
           <div className="profile-preview-tags">
             <Heart size={15} />
             {(previewProfile.favoriteTags?.length ? previewProfile.favoriteTags : ["festas", "novas amizades"]).map((tag) => (
