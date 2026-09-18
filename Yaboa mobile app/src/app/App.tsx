@@ -46,6 +46,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [busyMessage, setBusyMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [noticeMessage, setNoticeMessage] = useState("");
 
   function hasWriteAccess() {
     if (!user) return false;
@@ -367,6 +368,7 @@ export default function App() {
 
     setBusyMessage("Validando endereco...");
     setErrorMessage("");
+    setNoticeMessage("");
 
     try {
       let location = {
@@ -399,10 +401,7 @@ export default function App() {
       };
 
       setBusyMessage(party.id ? "Salvando alteracoes..." : "Criando festa...");
-      const venueRequest = party.venueId
-        ? supabase.from("locais").update(venuePayload).eq("id", party.venueId).select("*").single()
-        : supabase.from("locais").insert(venuePayload).select("*").single();
-      const { data: venue, error: venueError } = await venueRequest;
+      const { data: venue, error: venueError } = await saveVenue(party.venueId, venuePayload);
       if (venueError) throw venueError;
 
       const eventPayload = {
@@ -430,6 +429,7 @@ export default function App() {
       }
 
       await refreshData(user.id);
+      setNoticeMessage(party.id ? "Festa atualizada e aparecendo no mapa." : "Festa salva e publicada no mapa.");
       return true;
     } catch (error: any) {
       setErrorMessage(readableDbError(error?.message));
@@ -437,6 +437,32 @@ export default function App() {
     } finally {
       setBusyMessage("");
     }
+  }
+
+  async function saveVenue(venueId: string | null | undefined, payload: any) {
+    const request = venueId
+      ? supabase.from("locais").update(payload).eq("id", venueId).select("*").single()
+      : supabase.from("locais").insert(payload).select("*").single();
+    const result = await request;
+
+    if (!isCoordinateColumnError(result.error)) return result;
+
+    const fallbackPayload = {
+      ...payload,
+      lat: payload.latitude,
+      lng: payload.longitude,
+    };
+    delete fallbackPayload.latitude;
+    delete fallbackPayload.longitude;
+
+    return venueId
+      ? supabase.from("locais").update(fallbackPayload).eq("id", venueId).select("*").single()
+      : supabase.from("locais").insert(fallbackPayload).select("*").single();
+  }
+
+  function isCoordinateColumnError(error: any) {
+    const message = String(error?.message || "");
+    return message.includes("latitude") || message.includes("longitude") || message.includes("column");
   }
 
   async function deleteParty(party: Party) {
@@ -702,6 +728,7 @@ export default function App() {
           </>
         )}
         {errorMessage && <div className="toast-error">{errorMessage}</div>}
+        {noticeMessage && !errorMessage && <div className="toast-success">{noticeMessage}</div>}
         {busyMessage && <BusyOverlay text={busyMessage} />}
         {!selectedParty && <BottomNav tab={tab} onChange={setTab} />}
       </main>

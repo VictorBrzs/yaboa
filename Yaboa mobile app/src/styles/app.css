@@ -1837,7 +1837,8 @@ button:disabled {
   height: 26px;
 }
 
-.toast-error {
+.toast-error,
+.toast-success {
   position: absolute;
   left: 18px;
   right: 18px;
@@ -1845,11 +1846,19 @@ button:disabled {
   z-index: 5;
   border-radius: 18px;
   padding: 12px 14px;
-  color: #8b1d0c;
-  background: #ffe2d8;
   box-shadow: 0 14px 28px rgba(154, 52, 18, 0.16);
   font-size: 0.86rem;
   font-weight: 850;
+}
+
+.toast-error {
+  color: #8b1d0c;
+  background: #ffe2d8;
+}
+
+.toast-success {
+  color: #14532d;
+  background: #dcfce7;
 }
 
 .busy-overlay {
@@ -1896,6 +1905,7 @@ button:disabled {
 .message-form button,
 .icon-button,
 .toast-error,
+.toast-success,
 .busy-overlay {
   border-radius: 12px;
 }
@@ -2023,7 +2033,8 @@ button:disabled {
     transform: translateX(-50%);
   }
 
-  .toast-error {
+  .toast-error,
+  .toast-success {
     left: 50%;
     right: auto;
     bottom: 96px;
