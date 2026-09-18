@@ -214,10 +214,13 @@ export default function App() {
     if (eventsError) throw eventsError;
     if (attendeesError) throw attendeesError;
 
+    const activeEvents = (events ?? []).filter((event: any) => !isPartyExpired(event.data_evento, event.hora_evento));
+    void removeExpiredEvents(events ?? [], venues ?? []);
+
     const friendIds = new Set(knownFriends.map((friend) => friend.id));
     const profileById = new Map((profiles ?? []).map((profile: any) => [profile.id, profile]));
 
-    return (events ?? [])
+    return activeEvents
       .map((event: any): Party | null => {
         const venue = (venues ?? []).find((item: any) => item.id === event.local_id);
         const eventAttendees = (attendees ?? []).filter((item: any) => item.evento_id === event.id);
@@ -270,6 +273,29 @@ export default function App() {
       .filter((party): party is Party => Boolean(party))
       .filter((party) => party.visibility === "public" || party.isOwner || Boolean(party.createdBy && friendIds.has(party.createdBy)))
       .sort((a, b) => (a.distanceKm ?? 9999) - (b.distanceKm ?? 9999));
+  }
+
+  async function removeExpiredEvents(events: any[], venues: any[]) {
+    const expiredEvents = events.filter((event) => isPartyExpired(event.data_evento, event.hora_evento));
+    if (!expiredEvents.length) return;
+
+    const expiredEventIds = expiredEvents.map((event) => event.id).filter(Boolean);
+    const expiredVenueIds = expiredEvents.map((event) => event.local_id).filter(Boolean);
+    if (!expiredEventIds.length) return;
+
+    await supabase.from("eventos").delete().in("id", expiredEventIds);
+
+    const venueIdsStillInUse = new Set(events.filter((event) => !expiredEventIds.includes(event.id)).map((event) => event.local_id));
+    const orphanVenueIds = expiredVenueIds.filter((venueId) => !venueIdsStillInUse.has(venueId) && venues.some((venue) => venue.id === venueId));
+    if (orphanVenueIds.length) {
+      await supabase.from("locais").delete().in("id", orphanVenueIds);
+    }
+  }
+
+  function isPartyExpired(date: string, time?: string | null) {
+    const eventTime = new Date(`${date}T${(time || "23:59").slice(0, 5)}:00`).getTime();
+    if (!Number.isFinite(eventTime)) return false;
+    return Date.now() > eventTime + 12 * 60 * 60 * 1000;
   }
 
   async function loadChatMessages(userId: string): Promise<ChatMessage[]> {

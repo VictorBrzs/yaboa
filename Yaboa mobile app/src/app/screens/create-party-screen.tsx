@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { MapPin, Plus, Search } from "lucide-react";
+import { LocateFixed, MapPin, Plus, Search } from "lucide-react";
 import { createBlankParty } from "../constants";
 import { Field } from "../components/common";
 import { buildAddress, formatCep, geocodeAddress, lookupCep } from "../geocoding";
@@ -44,6 +44,7 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
     event.preventDefault();
     const preparedParty = {
       ...form,
+      address: form.address.trim() || "Pin marcado pelo usuario",
       tags: Array.isArray(form.tags) ? form.tags : String(form.tags).split(",").map((tag) => tag.trim()).filter(Boolean),
     };
 
@@ -94,16 +95,29 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
     }
   }
 
+  function useCurrentLocation() {
+    setForm((current) => ({
+      ...current,
+      lat: userLocation.lat,
+      lng: userLocation.lng,
+      address: current.address.trim() || userLocation.label || "Perto de voce",
+    }));
+    setPinStatus("Pin marcado na sua localizacao atual. Ajuste se a festa for em outro ponto.");
+  }
+
   return (
     <section className="screen with-nav">
       <header className="page-header">
         <p className="eyebrow">Criar Festa</p>
-        <h1>{draft ? "Editar evento" : "Coloque uma festa no mapa"}</h1>
+        <h1>{draft ? "Editar evento" : "Publique em poucos passos"}</h1>
       </header>
       <form className="party-form" onSubmit={submit}>
         <Field label="Nome da festa" value={form.title} onChange={(value) => setForm({ ...form, title: value })} required />
         <Field label="Local" value={form.venueName} onChange={(value) => setForm({ ...form, venueName: value })} required />
         <div className="address-helper">
+          <button type="button" className="location-button primary-button" onClick={useCurrentLocation} disabled={busy}>
+            <LocateFixed size={17} /> Usar minha localizacao
+          </button>
           <div className="address-cep-row">
             <Field label="CEP" value={cep} onChange={(value) => setCep(formatCep(value))} placeholder="00000-000" />
             <button type="button" className="ghost-button" onClick={findCep} disabled={checkingCep || busy}>
@@ -129,8 +143,7 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
             onChange={(value) => {
               setForm({ ...form, address: value });
             }}
-            placeholder="Rua, numero, bairro, cidade - UF"
-            required
+            placeholder="Rua, numero, bairro, cidade - UF ou confirme pelo pin"
           />
           <button type="button" className="location-button ghost-button" onClick={confirmPin} disabled={checkingPin || busy || !form.address.trim()}>
             <MapPin size={16} /> {checkingPin ? "Validando..." : "Confirmar pin"}
