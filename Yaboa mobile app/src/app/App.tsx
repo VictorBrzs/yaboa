@@ -241,8 +241,8 @@ export default function App() {
             const profile: any = profileById.get(item.usuario_id);
             return profile?.nome || profile?.nome_usuario || "Amigo";
           });
-        const lat = Number(venue?.lat);
-        const lng = Number(venue?.lng);
+        const lat = Number(venue?.latitude ?? venue?.lat);
+        const lng = Number(venue?.longitude ?? venue?.lng);
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
         return {
