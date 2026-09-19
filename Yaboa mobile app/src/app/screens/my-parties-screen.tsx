@@ -8,11 +8,12 @@ type MyPartiesScreenProps = {
   onCreate: () => void;
   onEdit: (party: Party) => void;
   onSelect: (id: string) => void;
+  onDelete: (party: Party) => void;
   onRemoveAttendee: (partyId: string, userId: string) => void;
   readOnly: boolean;
 };
 
-export function MyPartiesScreen({ parties, onCreate, onEdit, onSelect, onRemoveAttendee, readOnly }: MyPartiesScreenProps) {
+export function MyPartiesScreen({ parties, onCreate, onEdit, onSelect, onDelete, onRemoveAttendee, readOnly }: MyPartiesScreenProps) {
   return (
     <section className="screen with-nav my-parties-screen">
       <header className="page-header page-header-row">
@@ -56,7 +57,11 @@ export function MyPartiesScreen({ parties, onCreate, onEdit, onSelect, onRemoveA
                     <Edit3 size={16} /> Editar
                   </button>
                 )}
-                <button onClick={() => onSelect(party.id)}>Detalhes</button>
+                {!readOnly && (
+                  <button className="danger-action" onClick={() => onDelete(party)}>
+                    <Trash2 size={16} /> Excluir festa
+                  </button>
+                )}
               </div>
 
               <div className="attendee-panel">

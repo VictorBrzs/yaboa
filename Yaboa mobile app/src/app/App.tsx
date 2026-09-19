@@ -476,11 +476,16 @@ export default function App() {
       setErrorMessage("Apenas o criador pode excluir esta festa.");
       return;
     }
+    if (!window.confirm(`Excluir "${party.title}"? Essa acao remove a festa do mapa e das listas de confirmados.`)) return;
 
     setBusyMessage("Excluindo festa...");
     setErrorMessage("");
+    setNoticeMessage("");
 
     try {
+      await supabase.from("participantes_eventos").delete().eq("evento_id", party.id);
+      if (party.venueId) await supabase.from("presencas").delete().eq("local_id", party.venueId);
+
       const { error: eventError } = await supabase.from("eventos").delete().eq("id", party.id);
       if (eventError) throw eventError;
 
@@ -488,6 +493,7 @@ export default function App() {
 
       setSelectedPartyId(null);
       await refreshData(user.id);
+      setNoticeMessage("Festa excluida.");
     } catch (error: any) {
       setErrorMessage(readableDbError(error?.message));
     } finally {
@@ -710,6 +716,7 @@ export default function App() {
                 onCreate={() => openCreateForm()}
                 onEdit={(party) => openCreateForm(party)}
                 onSelect={setSelectedPartyId}
+                onDelete={deleteParty}
                 onRemoveAttendee={removePartyAttendee}
                 readOnly={user?.accessType === "convidado"}
               />
