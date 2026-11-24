@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { IonButton, IonInput } from "@ionic/react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 type FieldProps = {
@@ -21,9 +22,10 @@ export function Field({ label, value, onChange, placeholder, type = "text", requ
     <label className="field">
       <span>{label}</span>
       <div className={isPassword ? "password-input" : undefined}>
-        <input
+        <IonInput
+          className={`field-input${isPassword ? " password-field" : ""}`}
           value={value}
-          onChange={(event) => onChange(event.target.value)}
+          onIonInput={(event) => onChange(event.detail.value ?? "")}
           placeholder={placeholder}
           type={isPassword && passwordVisible ? "text" : type}
           required={required}
@@ -73,9 +75,9 @@ export function EmptyState({
       <h2>{title}</h2>
       <p>{text}</p>
       {action && onAction && (
-        <button className="primary-button" onClick={onAction}>
+        <IonButton className="primary-button" onClick={onAction}>
           {action}
-        </button>
+        </IonButton>
       )}
     </article>
   );

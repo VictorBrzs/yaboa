@@ -160,6 +160,7 @@ p {
 .field input,
 .field textarea,
 .field select,
+.field ion-input,
 .search-box input {
   width: 100%;
   border: 1px solid #fdba74;
@@ -173,6 +174,21 @@ p {
 .field select {
   height: 50px;
   padding: 0 14px;
+}
+
+.field ion-input {
+  height: 50px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --background: #fff7ed;
+  --color: #431407;
+  --placeholder-color: #9a6b56;
+  --highlight-color-focused: #f97316;
+  --highlight-height: 0;
+}
+
+.field ion-input.password-field {
+  --padding-end: 52px;
 }
 
 .password-input {
@@ -228,6 +244,21 @@ p {
   color: #fff;
   background: #f97316;
   box-shadow: 0 14px 28px rgba(154, 52, 18, 0.16);
+}
+
+ion-button.primary-button {
+  height: 50px;
+  margin: 0;
+  --background: #f97316;
+  --background-hover: #ea580c;
+  --background-activated: #c2410c;
+  --color: #ffffff;
+  --border-radius: 18px;
+  --box-shadow: 0 14px 28px rgba(154, 52, 18, 0.16);
+  --padding-start: 18px;
+  --padding-end: 18px;
+  font-weight: 950;
+  text-transform: none;
 }
 
 .primary-button.compact {
@@ -2287,5 +2318,95 @@ button:disabled {
   .auth-panel {
     margin-bottom: 18px;
     padding: 18px 24px;
+  }
+}
+
+/* Ionic / Capacitor mobile layout and native safe areas. */
+html,
+body,
+#root,
+ion-app {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior-y: none;
+}
+
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.phone-frame {
+  height: min(920px, calc(100dvh - 36px));
+}
+
+.screen {
+  padding-top: calc(24px + env(safe-area-inset-top, 0px));
+}
+
+.with-nav {
+  padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+}
+
+.app-footer {
+  position: absolute !important;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0 12px calc(8px + env(safe-area-inset-bottom, 0px));
+  background: transparent;
+  box-shadow: none;
+}
+
+.bottom-nav {
+  position: static;
+  width: 100%;
+  height: 68px;
+  padding: 6px;
+  border: 0;
+  border-radius: 22px;
+  --background: rgba(255, 255, 255, 0.96);
+  --color: #9a3412;
+  --color-selected: #ffffff;
+  box-shadow: 0 14px 34px rgba(154, 52, 18, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+.bottom-nav ion-tab-button {
+  min-width: 0;
+  max-width: none;
+  border-radius: 16px;
+  font-size: 0.72rem;
+  font-weight: 850;
+  --ripple-color: rgba(249, 115, 22, 0.18);
+}
+
+.bottom-nav ion-tab-button.tab-selected {
+  background: #f97316;
+}
+
+.bottom-nav ion-tab-button ion-icon {
+  font-size: 20px;
+}
+
+@media (max-width: 520px) {
+  .phone-frame {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .screen {
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+  }
+}
+
+@media (min-width: 900px) {
+  .phone-frame {
+    height: calc(100dvh - 48px);
   }
 }

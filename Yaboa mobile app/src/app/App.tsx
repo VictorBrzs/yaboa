@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { IonApp } from "@ionic/react";
 import { supabase } from "../lib/supabase";
 import { AuthScreen } from "./components/auth-screen";
 import { BottomNav } from "./components/bottom-nav";
@@ -635,25 +636,28 @@ export default function App() {
 
   if (view === "login") {
     return (
-      <AuthScreen
-        appStatus={status}
-        busyMessage={busyMessage}
-        errorMessage={errorMessage}
-        onAuthenticated={async (nextUser) => {
-          await assertSchemaReady();
-          const profiledUser = await loadCurrentUser(nextUser);
-          setUser(profiledUser);
-          await refreshData(profiledUser.id);
-          setView("app");
-        }}
-        onRetry={bootstrap}
-      />
+      <IonApp>
+        <AuthScreen
+          appStatus={status}
+          busyMessage={busyMessage}
+          errorMessage={errorMessage}
+          onAuthenticated={async (nextUser) => {
+            await assertSchemaReady();
+            const profiledUser = await loadCurrentUser(nextUser);
+            setUser(profiledUser);
+            await refreshData(profiledUser.id);
+            setView("app");
+          }}
+          onRetry={bootstrap}
+        />
+      </IonApp>
     );
   }
 
   return (
-    <div className="app-shell">
-      <main className="phone-frame">
+    <IonApp>
+      <div className="app-shell">
+        <main className="phone-frame">
         {selectedParty ? (
           <PartyDetails
             party={selectedParty}
@@ -743,7 +747,8 @@ export default function App() {
         {noticeMessage && !errorMessage && <div className="toast-success">{noticeMessage}</div>}
         {busyMessage && <BusyOverlay text={busyMessage} />}
         {!selectedParty && <BottomNav tab={tab} onChange={setTab} />}
-      </main>
-    </div>
+        </main>
+      </div>
+    </IonApp>
   );
 }

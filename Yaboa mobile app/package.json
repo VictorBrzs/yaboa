@@ -8,13 +8,18 @@
     "dev": "vite --host 0.0.0.0",
     "start": "vite --host 0.0.0.0",
     "android:sync": "capacitor sync android",
-    "android:apk": "npm run build && capacitor sync android && cd android && gradlew assembleDebug"
+    "android:apk": "npm run build && capacitor sync android && cd android && gradlew assembleDebug",
+    "ios:add": "capacitor add ios",
+    "ios:sync": "npm run build && capacitor sync ios",
+    "ios:open": "capacitor open ios"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.2",
     "@capacitor/core": "^6.2.2",
+    "@capacitor/ios": "^6.2.2",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
+    "@ionic/react": "^9.0.13",
     "@mui/icons-material": "7.3.5",
     "@mui/material": "7.3.5",
     "@popperjs/core": "2.11.8",
@@ -53,6 +58,7 @@
     "date-fns": "3.6.0",
     "embla-carousel-react": "8.6.0",
     "input-otp": "1.4.2",
+    "ionicons": "^8.1.1",
     "leaflet": "^1.9.4",
     "lucide-react": "0.487.0",
     "motion": "12.23.24",
