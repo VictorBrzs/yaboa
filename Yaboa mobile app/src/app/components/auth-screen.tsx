@@ -13,9 +13,10 @@ type AuthScreenProps = {
   errorMessage: string;
   onAuthenticated: (user: CurrentUser) => Promise<void> | void;
   onRetry: () => void;
+  onClearSavedSession: () => void;
 };
 
-export function AuthScreen({ appStatus, busyMessage, errorMessage, onAuthenticated, onRetry }: AuthScreenProps) {
+export function AuthScreen({ appStatus, busyMessage, errorMessage, onAuthenticated, onRetry, onClearSavedSession }: AuthScreenProps) {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -172,9 +173,14 @@ export function AuthScreen({ appStatus, busyMessage, errorMessage, onAuthenticat
             {loading ? "Conectando..." : mode === "login" ? "Entrar" : "Criar conta"}
           </button>
           {appStatus === "setup-error" && (
-            <button className="ghost-button" type="button" onClick={onRetry}>
-              <RefreshCw size={16} /> Tentar novamente
-            </button>
+            <div className="auth-recovery-actions">
+              <button className="ghost-button" type="button" onClick={onRetry}>
+                <RefreshCw size={16} /> Tentar novamente
+              </button>
+              <button className="ghost-button" type="button" onClick={onClearSavedSession}>
+                Sair da sessao salva e entrar novamente
+              </button>
+            </div>
           )}
         </form>
       </main>

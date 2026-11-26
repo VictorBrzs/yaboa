@@ -122,6 +122,25 @@ export default function App() {
     }
   }
 
+  async function clearSavedSession() {
+    setStatus("checking");
+    setBusyMessage("Encerrando a sessao salva...");
+    setErrorMessage("");
+
+    try {
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+      if (error) throw error;
+      setUser(null);
+      setView("login");
+      setStatus("ready");
+    } catch (error: any) {
+      setStatus("setup-error");
+      setErrorMessage(error?.message || "Nao foi possivel encerrar a sessao salva.");
+    } finally {
+      setBusyMessage("");
+    }
+  }
+
   async function assertSchemaReady() {
     const [{ error: usersError }, { error: placesError }, { error: eventsError }, { error: followsError }, { error: messagesError }] = await Promise.all([
       supabase.from("usuarios").select("id,email,nome_usuario").limit(1),
@@ -649,6 +668,7 @@ export default function App() {
             setView("app");
           }}
           onRetry={bootstrap}
+          onClearSavedSession={clearSavedSession}
         />
       </IonApp>
     );
