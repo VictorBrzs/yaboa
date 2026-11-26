@@ -1,4 +1,4 @@
-import { IonFooter, IonIcon, IonLabel, IonTabBar, IonTabButton } from "@ionic/react";
+import { IonIcon } from "@ionic/react";
 import { calendarOutline, chatbubblesOutline, clipboardOutline, mapOutline, personOutline } from "ionicons/icons";
 import type { Tab } from "../types";
 
@@ -12,22 +12,21 @@ const navItems = [
 
 export function BottomNav({ tab, onChange }: { tab: Tab; onChange: (tab: Tab) => void }) {
   return (
-    <IonFooter className="app-footer">
-      <IonTabBar className="bottom-nav">
-        {navItems.map((item) => {
-          return (
-            <IonTabButton
-              key={item.id}
-              tab={item.id}
-              selected={tab === item.id}
-              onClick={() => onChange(item.id)}
-            >
-              <IonIcon icon={item.icon} />
-              <IonLabel>{item.label}</IonLabel>
-            </IonTabButton>
-          );
-        })}
-      </IonTabBar>
-    </IonFooter>
+    <nav className="app-footer" aria-label="Navegação principal">
+      <div className="bottom-nav">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={tab === item.id ? "tab-selected" : ""}
+            aria-current={tab === item.id ? "page" : undefined}
+            onClick={() => onChange(item.id)}
+          >
+            <IonIcon icon={item.icon} aria-hidden="true" />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </nav>
   );
 }
