@@ -510,14 +510,14 @@ button:disabled {
 .map-screen-full .map-card {
   left: 18px;
   right: 86px;
-  bottom: 104px;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
   min-height: 52px;
 }
 
 .map-create-button {
   position: absolute;
   right: 22px;
-  bottom: 104px;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
   z-index: 3;
   width: 56px;
   height: 56px;
@@ -779,10 +779,21 @@ button:disabled {
 }
 
 .event-dashboard div {
+  position: relative;
   border-radius: 22px;
   padding: 18px;
   background: #fff;
   box-shadow: 0 14px 28px rgba(154, 52, 18, 0.12);
+}
+
+.event-dashboard div + div::before {
+  position: absolute;
+  top: 26%;
+  bottom: 26%;
+  left: -7px;
+  width: 1px;
+  background: #fdba74;
+  content: "";
 }
 
 .event-dashboard strong,
@@ -2233,6 +2244,7 @@ button:disabled {
   .auth-hero {
     min-height: auto;
     padding: 28px;
+    border-right: 1px solid #fdba74;
   }
 
   .auth-panel {
@@ -2247,13 +2259,13 @@ button:disabled {
   .map-screen-full .map-card {
     left: 28px;
     right: auto;
-    bottom: 28px;
+    bottom: calc(92px + env(safe-area-inset-bottom, 0px));
     width: min(360px, calc(100% - 132px));
   }
 
   .map-create-button {
     right: 28px;
-    bottom: 28px;
+    bottom: calc(92px + env(safe-area-inset-bottom, 0px));
   }
 
   .bottom-nav {
@@ -2300,6 +2312,16 @@ button:disabled {
   .party-form > label.field:has(textarea),
   .party-form > .form-actions {
     grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 899px) {
+  .auth-panel::before {
+    display: block;
+    height: 1px;
+    margin: -4px 0 16px;
+    background: #fdba74;
+    content: "";
   }
 }
 
