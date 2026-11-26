@@ -36,7 +36,7 @@ export function MapScreen({ parties, query, userLocation, onRequestLocation, onQ
 
   return (
     <section className="map-screen-full">
-      <RealPartyMap parties={parties} userLocation={userLocation} onSelect={onSelect} />
+      <RealPartyMap parties={parties} query={query} userLocation={userLocation} onSelect={onSelect} />
       <label className="map-search">
         <Search size={18} aria-hidden="true" />
         <input
@@ -69,10 +69,12 @@ export function MapScreen({ parties, query, userLocation, onRequestLocation, onQ
 
 function RealPartyMap({
   parties,
+  query,
   userLocation,
   onSelect,
 }: {
   parties: Party[];
+  query: string;
   userLocation: UserLocation;
   onSelect: (id: string) => void;
 }) {
