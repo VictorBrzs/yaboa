@@ -23,8 +23,9 @@ export function MapScreen({ parties, query, userLocation, onQuery, onSelect, onC
     <section className="map-screen-full">
       <RealPartyMap parties={parties} userLocation={userLocation} onSelect={onSelect} />
       {!readOnly && (
-        <button type="button" className="map-create-button" onClick={onCreate} aria-label="Criar festa">
-          <Plus size={24} />
+        <button type="button" className="map-create-button" onClick={onCreate}>
+          <Plus size={20} aria-hidden="true" />
+          <span>Criar festa</span>
         </button>
       )}
     </section>

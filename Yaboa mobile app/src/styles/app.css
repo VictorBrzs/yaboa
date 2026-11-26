@@ -246,21 +246,6 @@ p {
   box-shadow: 0 14px 28px rgba(154, 52, 18, 0.16);
 }
 
-ion-button.primary-button {
-  height: 50px;
-  margin: 0;
-  --background: #f97316;
-  --background-hover: #ea580c;
-  --background-activated: #c2410c;
-  --color: #ffffff;
-  --border-radius: 18px;
-  --box-shadow: 0 14px 28px rgba(154, 52, 18, 0.16);
-  --padding-start: 18px;
-  --padding-end: 18px;
-  font-weight: 950;
-  text-transform: none;
-}
-
 .primary-button.compact {
   width: auto;
   flex: 1;
@@ -517,17 +502,34 @@ button:disabled {
 .map-create-button {
   position: absolute;
   right: 22px;
-  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(156px + env(safe-area-inset-bottom, 0px));
   z-index: 3;
-  width: 56px;
-  height: 56px;
-  border: 0;
-  border-radius: 20px;
-  display: grid;
-  place-items: center;
+  min-height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
   color: #fff;
-  background: #f97316;
-  box-shadow: 0 14px 30px rgba(154, 52, 18, 0.22);
+  background: linear-gradient(135deg, #fb7a18, #e85d0c);
+  box-shadow: 0 12px 28px rgba(154, 52, 18, 0.32);
+  font-weight: 900;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.map-create-button:hover,
+.map-create-button:focus-visible {
+  background: linear-gradient(135deg, #ea580c, #c2410c);
+  box-shadow: 0 14px 30px rgba(154, 52, 18, 0.38);
+}
+
+.map-create-button:focus-visible,
+.empty-card .primary-button:focus-visible {
+  outline: 3px solid #fed7aa;
+  outline-offset: 3px;
 }
 
 .closest-card,
@@ -2000,6 +2002,7 @@ button:disabled {
 
 .empty-card .primary-button {
   width: 100%;
+  margin-top: 4px;
 }
 
 .setup-card h2 {

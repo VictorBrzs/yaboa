@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { IonButton, IonInput } from "@ionic/react";
+import { IonInput } from "@ionic/react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 type FieldProps = {
@@ -75,9 +75,9 @@ export function EmptyState({
       <h2>{title}</h2>
       <p>{text}</p>
       {action && onAction && (
-        <IonButton className="primary-button" onClick={onAction}>
+        <button type="button" className="primary-button" onClick={onAction}>
           {action}
-        </IonButton>
+        </button>
       )}
     </article>
   );
