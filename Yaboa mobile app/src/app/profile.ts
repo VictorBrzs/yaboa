@@ -4,12 +4,13 @@ import type { CurrentUser } from "./types";
 export function userFromSupabase(user: any): CurrentUser {
   const fallbackUsername = user.email?.split("@")[0] || "yaboa";
   const username = normalizeUsername(user.user_metadata?.username || fallbackUsername);
+  const guest = user.is_anonymous === true || user.user_metadata?.tipo_acesso === "convidado";
   return {
     id: user.id,
     name: user.user_metadata?.nome || user.user_metadata?.name || username || "Yaboa",
     email: user.email || "",
     username: normalizeUsername(user.user_metadata?.nome_usuario || username),
-    accessType: "membro",
+    accessType: guest ? "convidado" : "membro",
     avatarUrl: "",
     bio: "",
     favoriteTags: ["pop", "samba"],
@@ -31,6 +32,7 @@ export async function ensureProfile(user: CurrentUser) {
     email: user.email,
     nome_usuario: user.username || `${usernameBase}_${user.id.slice(0, 6)}`,
     preferencias: { tipos: ["festa", "bar"], etiquetas: ["pop", "samba"] },
+    tipo_acesso: user.accessType,
   });
 
   if (error) console.warn("Profile sync skipped:", error.message);

@@ -48,6 +48,37 @@ export function AuthScreen({ appStatus, busyMessage, errorMessage, onAuthenticat
     await onAuthenticated(user);
   }
 
+  async function enterAsGuest() {
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const { data, error } = await supabase.auth.signInAnonymously({
+        options: { data: { nome: "Convidado", tipo_acesso: "convidado" } },
+      });
+      if (error) {
+        if (/anonymous.*(disabled|not enabled)|anonymous sign.?in/i.test(error.message)) {
+          throw new Error("O acesso de convidado ainda precisa ser ativado nas configurações de autenticação do Supabase.");
+        }
+        throw error;
+      }
+      if (!data.user) throw new Error("Não foi possível iniciar o acesso de convidado.");
+
+      const guest: CurrentUser = {
+        ...userFromSupabase(data.user),
+        name: "Convidado",
+        username: `visitante_${data.user.id.slice(0, 8)}`,
+        accessType: "convidado",
+      };
+      await ensureProfile(guest);
+      await onAuthenticated(guest);
+    } catch (error: any) {
+      setMessage(readableAuthError(error?.message));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
@@ -172,6 +203,11 @@ export function AuthScreen({ appStatus, busyMessage, errorMessage, onAuthenticat
           <button className="primary-button" disabled={loading || appStatus !== "ready"}>
             {loading ? "Conectando..." : mode === "login" ? "Entrar" : "Criar conta"}
           </button>
+          {mode === "login" && (
+            <button className="ghost-button" type="button" onClick={enterAsGuest} disabled={loading || appStatus !== "ready"}>
+              {loading ? "Abrindo como convidado..." : "Entrar como convidado"}
+            </button>
+          )}
           {appStatus === "setup-error" && (
             <div className="auth-recovery-actions">
               <button className="ghost-button" type="button" onClick={onRetry}>
