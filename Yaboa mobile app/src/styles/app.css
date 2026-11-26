@@ -1714,6 +1714,18 @@ button:disabled {
   background: #fff7ed;
 }
 
+.pin-confirmation > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #9a3412;
+}
+
+.pin-confirmation svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
 .pin-confirmation strong,
 .pin-confirmation span {
   display: block;

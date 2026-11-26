@@ -1,5 +1,4 @@
 import { useState, type ReactNode } from "react";
-import { IonInput } from "@ionic/react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 type FieldProps = {
@@ -7,14 +6,15 @@ type FieldProps = {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  type?: string;
+  type?: "text" | "email" | "password" | "date" | "time";
   required?: boolean;
   autoComplete?: string;
   disabled?: boolean;
   maxLength?: number;
+  onBlur?: () => void;
 };
 
-export function Field({ label, value, onChange, placeholder, type = "text", required, autoComplete, disabled, maxLength }: FieldProps) {
+export function Field({ label, value, onChange, placeholder, type = "text", required, autoComplete, disabled, maxLength, onBlur }: FieldProps) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const isPassword = type === "password";
 
@@ -22,17 +22,17 @@ export function Field({ label, value, onChange, placeholder, type = "text", requ
     <label className="field">
       <span>{label}</span>
       <div className={isPassword ? "password-input" : undefined}>
-        <IonInput
+        <input
           className={`field-input${isPassword ? " password-field" : ""}`}
           value={value}
-          onIonInput={(event) => onChange(event.detail.value ?? "")}
+          onChange={(event) => onChange(event.currentTarget.value)}
+          onBlur={onBlur}
           placeholder={placeholder}
           type={isPassword && passwordVisible ? "text" : type}
           required={required}
           disabled={disabled}
           autoComplete={autoComplete}
           maxLength={maxLength}
-          step={type === "number" ? "any" : undefined}
         />
         {isPassword && (
           <button

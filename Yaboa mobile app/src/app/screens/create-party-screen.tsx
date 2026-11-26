@@ -1,5 +1,5 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { Camera, ImagePlus, LocateFixed, MapPin, Plus, Search } from "lucide-react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import { Camera, ImagePlus, LocateFixed, MapPin, Plus } from "lucide-react";
 import { createBlankParty } from "../constants";
 import { Field } from "../components/common";
 import { buildAddress, formatCep, geocodeAddress, lookupCep } from "../geocoding";
@@ -25,9 +25,10 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
   const [complement, setComplement] = useState("");
   const [cepStatus, setCepStatus] = useState("");
   const [pinStatus, setPinStatus] = useState("");
+  const [addressMode, setAddressMode] = useState<"cep" | "current" | "existing">(() => draft?.address ? "existing" : "cep");
   const [imageStatus, setImageStatus] = useState("");
-  const [checkingCep, setCheckingCep] = useState(false);
   const [checkingPin, setCheckingPin] = useState(false);
+  const cepLookupRequest = useRef(0);
 
   useEffect(() => {
     setForm(draft || createBlankParty(userLocation));
@@ -40,6 +41,7 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
     setComplement("");
     setCepStatus("");
     setPinStatus("");
+    setAddressMode(draft?.address ? "existing" : "cep");
     setImageStatus("");
   }, [draft, userLocation.lat, userLocation.lng]);
 
@@ -74,22 +76,22 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
     setForm((current) => ({ ...current, address }));
   }
 
-  async function findCep() {
-    setCheckingCep(true);
-    setCepStatus("");
+  async function findCep(value = cep) {
+    const request = ++cepLookupRequest.current;
+    setCepStatus("Buscando endereco pelo CEP...");
 
     try {
-      const result = await lookupCep(cep);
+      const result = await lookupCep(value);
+      if (request !== cepLookupRequest.current) return;
       setStreet(result.street);
       setDistrict(result.district);
       setCity(result.city);
       setStateUf(result.state);
-      updateAddress({ ...result, number, complement });
-      setCepStatus("CEP encontrado. Complete o numero.");
+      const address = buildAddress({ ...result, number, complement });
+      setForm((current) => ({ ...current, address }));
+      setCepStatus(address ? `Endereco encontrado: ${address}` : "CEP encontrado. Informe o numero do local.");
     } catch (error: any) {
-      setCepStatus(error?.message || "CEP nao encontrado.");
-    } finally {
-      setCheckingCep(false);
+      if (request === cepLookupRequest.current) setCepStatus(error?.message || "CEP nao encontrado.");
     }
   }
 
@@ -103,9 +105,8 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
         ...current,
         lat: result.lat,
         lng: result.lng,
-        address: result.displayName || current.address,
       }));
-      setPinStatus("Pin localizado e pronto para publicar.");
+      setPinStatus("Local encontrado no mapa.");
     } catch (error: any) {
       setPinStatus(error?.message || "Nao foi possivel localizar este endereco.");
     } finally {
@@ -114,13 +115,30 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
   }
 
   function useCurrentLocation() {
-    setForm((current) => ({
-      ...current,
-      lat: userLocation.lat,
-      lng: userLocation.lng,
-      address: current.address.trim() || userLocation.label || "Perto de voce",
-    }));
-    setPinStatus("Pin marcado na sua localizacao atual.");
+    if (!navigator.geolocation) {
+      setPinStatus("Este aparelho nao disponibiliza localizacao.");
+      return;
+    }
+
+    setCheckingPin(true);
+    setPinStatus("Obtendo sua localizacao...");
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setForm((current) => ({ ...current, lat: coords.latitude, lng: coords.longitude, address: "Localizacao atual" }));
+        setAddressMode("current");
+        cepLookupRequest.current += 1;
+        setCep("");
+        setNumber("");
+        setCepStatus("");
+        setPinStatus("Localizacao atual marcada no mapa.");
+        setCheckingPin(false);
+      },
+      () => {
+        setPinStatus("Nao foi possivel acessar sua localizacao. Verifique a permissao do aparelho.");
+        setCheckingPin(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
   }
 
   return (
@@ -133,44 +151,30 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
         <Field label="Nome da festa" value={form.title} onChange={(value) => setForm({ ...form, title: value })} required />
         <Field label="Local" value={form.venueName} onChange={(value) => setForm({ ...form, venueName: value })} required />
         <div className="address-helper">
-          <button type="button" className="location-button primary-button" onClick={useCurrentLocation} disabled={busy}>
+          <button type="button" className="location-button primary-button" onClick={useCurrentLocation} disabled={busy || checkingPin}>
             <LocateFixed size={17} /> Usar minha localizacao
           </button>
           <div className="address-cep-row">
-            <Field label="CEP" value={cep} onChange={(value) => setCep(formatCep(value))} placeholder="00000-000" />
-            <button type="button" className="ghost-button" onClick={findCep} disabled={checkingCep || busy}>
-              <Search size={16} /> {checkingCep ? "Buscando..." : "Buscar"}
-            </button>
+            <Field label="CEP" value={cep} onChange={(value) => {
+              const nextCep = formatCep(value);
+              setCep(nextCep);
+              setAddressMode("cep");
+              if (nextCep.replace(/\D/g, "").length !== 8) cepLookupRequest.current += 1;
+              setForm((current) => ({ ...current, address: "" }));
+              setCepStatus("");
+              if (nextCep.replace(/\D/g, "").length === 8) void findCep(nextCep);
+            }} placeholder="00000-000" required={addressMode === "cep"} />
+            <Field label="Numero" value={number} onChange={(value) => {
+              setNumber(value);
+              updateAddress({ street, number: value, complement, district, city, state: stateUf });
+            }} onBlur={() => { if (addressMode === "cep" && form.address.trim()) void confirmPin(); }} placeholder="Numero" required={addressMode === "cep"} />
           </div>
-          {cepStatus && <p className={`form-message ${cepStatus.startsWith("CEP encontrado") ? "success" : ""}`}>{cepStatus}</p>}
-          <div className="two-grid">
-            <Field label="Rua" value={street} onChange={(value) => { setStreet(value); updateAddress({ street: value, number, complement, district, city, state: stateUf }); }} />
-            <Field label="Numero" value={number} onChange={(value) => { setNumber(value); updateAddress({ street, number: value, complement, district, city, state: stateUf }); }} />
-          </div>
-          <div className="two-grid">
-            <Field label="Bairro" value={district} onChange={(value) => { setDistrict(value); updateAddress({ street, number, complement, district: value, city, state: stateUf }); }} />
-            <Field label="Cidade" value={city} onChange={(value) => { setCity(value); updateAddress({ street, number, complement, district, city: value, state: stateUf }); }} />
-          </div>
-          <div className="two-grid compact-grid">
-            <Field label="UF" value={stateUf} onChange={(value) => { setStateUf(value.toUpperCase().slice(0, 2)); updateAddress({ street, number, complement, district, city, state: value.toUpperCase().slice(0, 2) }); }} />
-            <Field label="Complemento" value={complement} onChange={(value) => { setComplement(value); updateAddress({ street, number, complement: value, district, city, state: stateUf }); }} placeholder="Opcional" />
-          </div>
-          <Field
-            label="Endereco completo"
-            value={form.address}
-            onChange={(value) => {
-              setForm({ ...form, address: value });
-            }}
-            placeholder="Rua, numero, bairro, cidade - UF ou confirme pelo pin"
-          />
-          <button type="button" className="location-button ghost-button" onClick={confirmPin} disabled={checkingPin || busy || !form.address.trim()}>
-            <MapPin size={16} /> {checkingPin ? "Validando..." : "Confirmar pin"}
-          </button>
-          {pinStatus && <p className={`form-message ${pinStatus.startsWith("Pin localizado") ? "success" : ""}`}>{pinStatus}</p>}
+          {cepStatus && <p className={`form-message ${cepStatus.startsWith("Endereco encontrado") ? "success" : ""}`}>{cepStatus}</p>}
+          {pinStatus && <p className={`form-message ${pinStatus.includes("marcada") || pinStatus.includes("encontrado") ? "success" : ""}`}>{pinStatus}</p>}
           <div className="pin-confirmation">
             <div>
-              <strong>Pin confirmado</strong>
-              <span>{form.lat.toFixed(6)}, {form.lng.toFixed(6)}</span>
+              <MapPin size={17} />
+              <span>{form.address || "O endereco sera localizado no mapa"}</span>
             </div>
           </div>
         </div>
