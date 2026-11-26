@@ -7,7 +7,7 @@ import { BusyOverlay } from "./components/common";
 import { defaultLocation, fallbackImage } from "./constants";
 import { geocodeAddress } from "./geocoding";
 import { distanceKm, initials, readableDbError } from "./helpers";
-import { ensureProfile, userFromProfile, userFromSupabase } from "./profile";
+import { userFromProfile, userFromSupabase } from "./profile";
 import { CreatePartyScreen } from "./screens/create-party-screen";
 import { EventsScreen } from "./screens/events-screen";
 import { MapScreen } from "./screens/map-screen";
@@ -107,12 +107,11 @@ export default function App() {
       setStatus("ready");
 
       if (activeUser) {
-        await assertSchemaReady();
-        await ensureProfile(activeUser);
-        const profiledUser = await loadCurrentUser(activeUser);
-        setUser(profiledUser);
-        await refreshData(profiledUser.id);
+        setUser(activeUser);
         setView("app");
+        void loadCurrentUser(activeUser)
+          .then(setUser)
+          .catch((error: any) => setErrorMessage(readableDbError(error?.message)));
       }
     } catch (error: any) {
       setStatus("setup-error");
@@ -141,25 +140,16 @@ export default function App() {
     }
   }
 
-  async function assertSchemaReady() {
-    const [{ error: usersError }, { error: placesError }, { error: eventsError }, { error: followsError }, { error: messagesError }] = await Promise.all([
-      supabase.from("usuarios").select("id,email,nome_usuario").limit(1),
-      supabase.from("locais").select("id").limit(1),
-      supabase.from("eventos").select("id,visibilidade").limit(1),
-      supabase.from("seguidores").select("seguidor_id,seguindo_id").limit(1),
-      supabase.from("mensagens").select("id").limit(1),
-    ]);
-
-    if (usersError || placesError || eventsError || followsError || messagesError) {
-      throw new Error("Não foi possível iniciar o app. Execute o script de banco de dados e tente novamente.");
-    }
-  }
-
   async function refreshData(userId = user?.id) {
     const social = userId ? await loadSocial(userId) : { friends: [], profiles: [], following: 0, followers: 0 };
     const [loadedParties, loadedMessages] = await Promise.all([
       loadParties(userId, social.friends),
-      userId ? loadChatMessages(userId) : Promise.resolve([]),
+      userId
+        ? loadChatMessages(userId).catch((error: any) => {
+            console.warn("Mensagens indisponiveis:", error?.message);
+            return [];
+          })
+        : Promise.resolve([]),
     ]);
 
     setFriends(social.friends);
@@ -238,7 +228,7 @@ export default function App() {
 
     if (venuesError) throw venuesError;
     if (eventsError) throw eventsError;
-    if (attendeesError) throw attendeesError;
+    if (attendeesError) console.warn("Lista de participantes indisponivel:", attendeesError.message);
 
     const activeEvents = (events ?? []).filter((event: any) => !isPartyExpired(event.data_evento, event.hora_evento));
     void removeExpiredEvents(events ?? [], venues ?? []);
@@ -661,11 +651,13 @@ export default function App() {
           busyMessage={busyMessage}
           errorMessage={errorMessage}
           onAuthenticated={async (nextUser) => {
-            await assertSchemaReady();
-            const profiledUser = await loadCurrentUser(nextUser);
-            setUser(profiledUser);
-            await refreshData(profiledUser.id);
+            setErrorMessage("");
+            setUser(nextUser);
+            setStatus("ready");
             setView("app");
+            void loadCurrentUser(nextUser)
+              .then(setUser)
+              .catch((error: any) => setErrorMessage(readableDbError(error?.message)));
           }}
           onRetry={bootstrap}
           onClearSavedSession={clearSavedSession}
