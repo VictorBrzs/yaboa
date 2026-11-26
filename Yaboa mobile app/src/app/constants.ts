@@ -1,4 +1,5 @@
 import type { Party, UserLocation } from "./types";
+import { todayLocalDate } from "./helpers";
 
 export const fallbackImage =
   "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80";
@@ -37,7 +38,7 @@ const blankParty: Party = {
 export function createBlankParty(userLocation: UserLocation): Party {
   return {
     ...blankParty,
-    date: new Date().toISOString().slice(0, 10),
+    date: todayLocalDate(),
     time: "22:00",
     price: "A confirmar",
     lat: userLocation.lat,

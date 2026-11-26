@@ -3,7 +3,7 @@ import { Camera, ImagePlus, LocateFixed, MapPin, Plus } from "lucide-react";
 import { createBlankParty } from "../constants";
 import { Field } from "../components/common";
 import { buildAddress, formatCep, geocodeAddress, lookupCep } from "../geocoding";
-import { imageFileToDataUrl } from "../helpers";
+import { imageFileToDataUrl, todayLocalDate } from "../helpers";
 import type { Party, UserLocation, Visibility } from "../types";
 
 type CreatePartyScreenProps = {
@@ -179,7 +179,7 @@ export function CreatePartyScreen({ draft, busy, userLocation, onSave, onCancel 
           </div>
         </div>
         <div className="two-grid">
-          <Field label="Data" type="date" value={form.date} onChange={(value) => setForm({ ...form, date: value })} required />
+          <Field label="Data" type="date" min={todayLocalDate()} value={form.date} onChange={(value) => setForm({ ...form, date: value })} required />
           <Field label="Hora" type="time" value={form.time} onChange={(value) => setForm({ ...form, time: value })} required />
         </div>
         <div className="two-grid">

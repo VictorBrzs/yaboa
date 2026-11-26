@@ -4,7 +4,7 @@ export function readableAuthError(message = "") {
   if (message.includes("User already registered")) return "Este e-mail já possui uma conta. Use a opção Entrar.";
   if (message.includes("Password should")) return "A senha não atende aos requisitos de segurança.";
   if (message.includes("rate limit")) return "Muitas tentativas agora. Tente novamente em alguns minutos.";
-  return message || "Não foi possível autenticar agora.";
+  return "Nao foi possivel autenticar agora. Verifique sua conexao e tente novamente.";
 }
 
 export function readableDbError(message = "") {
@@ -12,12 +12,19 @@ export function readableDbError(message = "") {
   if (message.includes("row-level security")) return "Permissão negada. Entre novamente e tente de novo.";
   if (message.includes("violates foreign key")) return "O perfil do usuário ainda não existe. Saia, entre novamente e tente de novo.";
   if (message.includes("duplicate key") || message.includes("usuarios_nome_usuario_key")) return "Esse nome de usuário já está em uso. Escolha outro.";
-  return message || "Não foi possível salvar agora.";
+  return "Nao foi possivel concluir essa acao. Tente novamente.";
 }
 
 export function formatDate(value: string) {
   if (!value) return "Data a confirmar";
   return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(new Date(`${value}T12:00:00`));
+}
+
+export function todayLocalDate() {
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${today.getFullYear()}-${month}-${day}`;
 }
 
 export function relativeTime(value: string) {

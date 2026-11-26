@@ -145,6 +145,69 @@ p {
   box-shadow: 0 8px 18px rgba(249, 115, 22, 0.2);
 }
 
+.age-check-note,
+.age-check-disclaimer {
+  margin: -4px 0 14px;
+  color: #7c2d12;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.age-check-note {
+  font-weight: 800;
+}
+
+.age-check-disclaimer {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff7ed;
+}
+
+.auth-status {
+  margin: 0 0 12px;
+  color: #7c2d12;
+  font-size: 0.84rem;
+  font-weight: 750;
+  text-align: center;
+}
+
+.map-search {
+  position: absolute;
+  z-index: 3;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  left: 16px;
+  right: 72px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 13px;
+  border: 1px solid rgba(154, 52, 18, 0.12);
+  border-radius: 16px;
+  color: #9a3412;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 22px rgba(67, 20, 7, 0.2);
+}
+
+.map-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: #431407;
+  background: transparent;
+  font-size: 0.9rem;
+}
+
+.map-search input::placeholder {
+  color: #9a6b56;
+}
+
+.map-search:focus-within {
+  outline: 3px solid #ea580c;
+  outline-offset: 2px;
+}
+
 .field {
   display: grid;
   gap: 7px;
@@ -1714,6 +1777,48 @@ button:disabled {
   background: #fff7ed;
 }
 
+.map-location-button {
+  position: absolute;
+  z-index: 3;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(154, 52, 18, 0.12);
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: #9a3412;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 22px rgba(67, 20, 7, 0.2);
+}
+
+.map-location-button:hover,
+.map-location-button:focus-visible {
+  color: #fff;
+  background: #c2410c;
+}
+
+.map-location-button:disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+.map-location-status {
+  position: absolute;
+  z-index: 4;
+  top: calc(72px + env(safe-area-inset-top, 0px));
+  right: 16px;
+  max-width: min(300px, calc(100% - 32px));
+  padding: 8px 12px;
+  border-radius: 12px;
+  color: #7c2d12;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 6px 16px rgba(67, 20, 7, 0.16);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
 .pin-confirmation > div {
   display: flex;
   align-items: flex-start;
@@ -2327,6 +2432,22 @@ button:disabled {
   .party-form > label.field:has(textarea),
   .party-form > .form-actions {
     grid-column: 1 / -1;
+  }
+}
+
+:where(button, input, textarea, select):focus-visible {
+  outline: 3px solid #ea580c;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

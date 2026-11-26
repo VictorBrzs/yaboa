@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, type HTMLAttributes, type ReactNode } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 type FieldProps = {
@@ -11,10 +11,12 @@ type FieldProps = {
   autoComplete?: string;
   disabled?: boolean;
   maxLength?: number;
+  min?: string;
+  inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
   onBlur?: () => void;
 };
 
-export function Field({ label, value, onChange, placeholder, type = "text", required, autoComplete, disabled, maxLength, onBlur }: FieldProps) {
+export function Field({ label, value, onChange, placeholder, type = "text", required, autoComplete, disabled, maxLength, min, inputMode, onBlur }: FieldProps) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const isPassword = type === "password";
 
@@ -33,6 +35,8 @@ export function Field({ label, value, onChange, placeholder, type = "text", requ
           disabled={disabled}
           autoComplete={autoComplete}
           maxLength={maxLength}
+          min={min}
+          inputMode={inputMode}
         />
         {isPassword && (
           <button

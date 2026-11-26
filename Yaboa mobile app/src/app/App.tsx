@@ -60,7 +60,6 @@ export default function App() {
 
   useEffect(() => {
     bootstrap();
-    resolveUserLocation();
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session?.user) {
@@ -80,20 +79,21 @@ export default function App() {
     });
   }, [status, user?.id, userLocation.lat, userLocation.lng]);
 
-  function resolveUserLocation() {
-    if (!navigator.geolocation) return;
+  function resolveUserLocation(): Promise<boolean> {
+    if (!navigator.geolocation) return Promise.resolve(false);
 
-    navigator.geolocation.getCurrentPosition(
+    return new Promise((resolve) => navigator.geolocation.getCurrentPosition(
       (position) => {
         setUserLocation({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
           label: "Perto de voce",
         });
+        resolve(true);
       },
-      () => setUserLocation(defaultLocation),
+      () => resolve(false),
       { enableHighAccuracy: true, timeout: 6000, maximumAge: 1000 * 60 * 10 },
-    );
+    ));
   }
 
   async function bootstrap() {
@@ -272,7 +272,7 @@ export default function App() {
           visibility,
           isOwner: Boolean(userId && event.criado_por === userId),
           isGoing: Boolean(userId && eventAttendees.some((item: any) => item.usuario_id === userId)),
-          distanceKm: distanceKm(userLocation.lat, userLocation.lng, lat, lng),
+          distanceKm: userLocation.label === "Perto de voce" ? distanceKm(userLocation.lat, userLocation.lng, lat, lng) : null,
           friendsGoing,
           attendees: attendeeProfiles,
         };
@@ -675,6 +675,7 @@ export default function App() {
                 parties={filteredParties}
                 query={query}
                 userLocation={userLocation}
+                onRequestLocation={resolveUserLocation}
                 onQuery={setQuery}
                 onSelect={setSelectedPartyId}
                 onCreate={() => openCreateForm()}

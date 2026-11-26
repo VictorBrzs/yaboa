@@ -26,6 +26,6 @@ Também há comandos equivalentes na raiz do repositório, como `npm run build:a
 
 ## Variaveis de ambiente
 
-Crie um arquivo `.env` a partir de `.env.example` e preencha as variaveis publicas do Supabase usadas pelo navegador.
+Crie um arquivo `.env` a partir de `.env.example` e preencha as variaveis publicas do Supabase usadas pelo navegador. Tudo que começa com `VITE_` é incluído no aplicativo e deve ser tratado como público. Nunca coloque senhas de usuário, `service_role` ou segredos de servidor nessas variáveis.
 
-O convidado pode navegar pelo mapa, eventos e perfis publicos. Os controles da interface bloqueiam cadastro, edicao, presenca, seguimento ou mensagem para essa conta.
+O cliente usa apenas a chave pública do Supabase. Proteja leitura e escrita com Row Level Security (RLS) e políticas no banco; os controles da interface não substituem essas políticas.
