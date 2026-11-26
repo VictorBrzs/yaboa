@@ -87,9 +87,3 @@ root.render(<StartupErrorBoundary><App /></StartupErrorBoundary>);
 window.setTimeout(() => {
   if (!rootElement.textContent?.trim()) root.render(<RecoveryScreen />);
 }, 8000);
-
-window.addEventListener("error", (event) => {
-  if (event.error) root.render(<RecoveryScreen />);
-});
-
-window.addEventListener("unhandledrejection", () => root.render(<RecoveryScreen />));

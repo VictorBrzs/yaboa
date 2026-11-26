@@ -231,7 +231,9 @@ export default function App() {
     if (attendeesError) console.warn("Lista de participantes indisponivel:", attendeesError.message);
 
     const activeEvents = (events ?? []).filter((event: any) => !isPartyExpired(event.data_evento, event.hora_evento));
-    void removeExpiredEvents(events ?? [], venues ?? []);
+    void removeExpiredEvents(events ?? [], venues ?? []).catch((error: any) => {
+      console.warn("Nao foi possivel limpar festas antigas:", error?.message);
+    });
 
     const friendIds = new Set(knownFriends.map((friend) => friend.id));
     const profileById = new Map((profiles ?? []).map((profile: any) => [profile.id, profile]));
